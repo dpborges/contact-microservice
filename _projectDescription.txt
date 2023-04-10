@@ -1,0 +1,38 @@
+SAMPLE-BACKEND 
+ This is acting as the API gateway. It receives requests from clients in the outside world
+ and dispatches them to the services. The backend service will be running on port 3000.
+ - Install @nestjs/microservice in sample-backend
+ - Since this is acting as the API-Gateway, is acting as a client and not a microservice,
+   there is no need to update the main.ts file with microservice transport.
+   But since its acting like a client, we need to register the Client Module for the gateway
+   to dispatch events to the microservices.
+ - add the createUser Dto to define the shape coming from the user 
+ - add the createUser route to the app.controller.ts file
+ - add a createUser method to the app.service.ts
+ - to emit an event , create a create-user.event.ts file
+
+SAMPLE-COMMUNICATION
+This will serve as event consumer service, which be listening for send communicatino events.
+- Install @nestjs/microservice in sample-communication 
+- Update the main.ts file to create the microservice and configure the transport
+   Since we are not exposing this to the outside world we dont need to set up http requests.
+   This will listening for messages and events from other services
+   This microservice is set up to listen on port 3000
+- Update the app.controller to add an event listener to listen for the user_created event.
+
+SAMPLE-ANALYTICS
+This is a hybrid application. It will be listening to both Events and Http Requests.
+- Install @nestjs/microservice in sample-communication 
+- Update main.ts. Since we want to create an nest app using the nest factory, we 
+  keep that 'as is', but configure a microservice in the app itself, this way can 
+  handle REST calls and listen to events.
+- update app.controller.ts to listen for user created events.
+- Create class CreateUserEvent
+- Open up the app.module.ts in the sample-backend and add the client configuration for
+  the sample-analytics microservice. This will allow the backend gateway to dispatch 
+  requests to the sample-analytics microservice.
+  
+
+
+
+

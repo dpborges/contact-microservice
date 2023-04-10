@@ -1,0 +1,206 @@
+AGGREGATE DESIGN IMPLEMENTATION TODOS
+- (done) Create aggregate<Contact> method 
+- (done) implement Save Aggregate  method
+- (done) Refactor Save to use transactions
+- (done) Modify save method to be idempotent
+
+
+CREATE-AGGREGATE TODOS
+- Decide on Response Type to return when you create an Aggregate 
+  I decided to use an HATEOAS approach for following reasons
+   1) remove the need for client to maintain server side routes
+      on the client side.
+   2) reduce data trasfer rates. If user is interested in seeing 
+      the data, they 
+  For more info on HATEOAS see https://restfulapi.net/hateoas/
+
+>>>>>>  I   A M  W O R K I N G  O N  B E L O W  <<<<<<<
+
+GENERATING ERROR RESPONSES
+- Solution: Create object that allows you to provide status code, short and long message, an
+    optional link to reference documentation. 
+  Rational: The status code and short message can be used to remain compatible with HTTP status 
+    code and short message.
+- TODOS
+  - (DONE) create en error response type or class where I am able to set the properties on the 
+    type.
+  - (DONE) Test to see that error on microservices layer propagates to sample gateway.
+
+TRANSACTION MESSAGING PATTERN
+- (DONE) Conduct Analysis / Design of transaction messaging pattern
+- (DONE) Create High Level Sequence Diagram for the transactional MessagePattern using Outbox
+- (DONE)Outline below steps for implementing Transaction MessagePattern
+ DomainChangeEvent
+  - (DONE) Decide where in the process I generate DomainChange event.
+      Decision: must be in aggregate service because the event neends to saved in outbox
+                as part of the transaction.
+  - (DONE) Update Sequence Diagram
+  - (DONE) Decide how I generate the DomainChangeEvent
+  - (DONE) Move DomainChange generation from contact.service to aggregate service, 
+    becuase the event and the subject are needed to save in the outbox as part of the 
+    save transaction.
+  - (DONE) Implement generate DomainChangeEvent
+ DomainChangeEvent
+  - (DONE) Decide Outbox Table Structure
+  - (DONE) Decide Structure of the ProcessOutboxEvent
+  - (DONE) Implement a Mock Outbox Listener within contact controller that listens to ProceesOutboxEvents
+  - (DONE) See that new event object gets propagated correctedly from gateway to orders microservice
+  - (DONE) In contact.service line 49, I need to replace email with userId. Trace 
+    back to source and see how it propagates downstream.
+  - (DONE) Modify contact entity to include userId and to allow nulls.
+  - (DONE) Used the event header to Save events in the outbox as part of the save transaction.
+  - (DONE) Implement the Read Unpublished("un") events from Outbox in the outbox.service
+  - (DONE) Rename DomainPublisher to DomainChangeEventPublisher 
+  - (DONE) Run test to make sure messages flow downstream after making change above.
+  - (DONE) See how I can use Generics and/or Generic Type Aliases to implement DomainChangeEventPublisher
+ DomainChangeEvent Consumer
+  - (DONE) Implement a Mock Outbox Listener for the DomainChangeEvent
+  - (DONE) Install config module and make publishDomainChanges an option 
+  - (DONE) Refactor code to bundle all DomainChange related methods in DomainChangeManager.
+  
+
+CONCURRENCY AND MESSAGE ORDERING USING AGGREGATE VERSION  
+- Review Microservice lesson on Concurrency and Transaction Ordering
+  See Sheet Labeled "Part 8" located below
+  https://docs.google.com/spreadsheets/d/1im-zPDoehtuivpuRxWoif_6X024u1HIQzK6RKljP0Uk/edit#gid=486456901
+- Conduct Analyis/Design for update transaction. Considering using similar model as CreateEntity
+    - load aggregate  with option to load partial or entire aggregate
+    - update aggregate, input should be object with primary id(s) and properties being changed
+      save can be used for singleton updates, but how do I handle bulk updates without
+      having to load all the aggregate instances and calling individual save for each one.
+      Perhaps create a saveBatch(for upto 20 records) and saveBulk(for 21 to 100's of records)
+    - save aggregate, leveraging partial aggregate detection in existing save service
+- Implement load (or get) aggregate
+    - delete all contact relations data
+    - create test data
+      - (done) create 3 contacts 1a,1b,1c in account 1001
+      - (done) create 3 contacts 2a,2b,2c in account 1002
+      - (done) create 1 contact that exists in account 1001 and 1002
+      - (done) create 1 contact with no source
+    - (done) Modify create contact logic to avoid creating new contact in another account
+      without creating a duplicate account record.
+    - (done) Create sql to check if contact exists in a given account.
+    - (done) Create sql to load aggregate for a given contact id.
+    - (done) Remove accountId from contact table
+    - (done) Rename fields name and type to sourceName and sourceType on contactSource Table
+    - (done) Modify query in loadAggregate() to support above table changes
+    - (done) Make any changes to create aggregate to also support above table changes.
+
+- IMPLEMENT UPDATE AGGREGATE
+    - (done) Analysis/Design on how to apply change and generate events similar to create aggrgate.
+    - (done) Implement apply and aggregate updated event.
+    - (done) Test applying update to contact
+    - (done) Test applying update to contactSource when it exists
+    - (done) See how I can extend or merge NamedLinks with my own application links 
+       in the Application response class.
+    - (done) Figure out where is the best place to generate updateImages response for updateAggregate request
+    - (done) How to generateUPdateImages 
+        - (done) remove the getAggregate from updateAggregateById
+        - (done) call getAggregate from contact.service and pass it into updateAggregateById
+                 this will allow me to genbeforeandafter image from contact service
+    - (done) Modify contact.save.service as follows:
+        - have it return the aggregate instead of aggregate root.
+        - make any modifications to any code calling the save service to deal with aggregate 
+          instead of aggregateRoot.
+    - (done) Refactor create Aggregate to use new BaseResponse class.
+    - (done) Modify updateAggregate to return ContactUpdatedResponse 
+    - (done) Modify updateAggregateById to check for condition (contact = null). 
+             If so, contact service should generate and return error object to client.
+    - (done) Test full query as it seems to bring back duplicate records
+    - (done) Check where I am using findContactByAcctandEmail because its not using email
+             but contactId instead. Need to determine what I intended.
+    - (done) add the typeorm listener to update entity version
+    - handle requirement for publishing domain updated event in contact.service
+      - (done) fix: contact created handler does not does not receive id when doing an 
+        idempotent create
+      - (done) create method
+      - (done) in the handle method, map the data from updateContactEvent to contactUpdatedEvent
+      - (done) see if I can genericise the domainchange factor methods.
+      - (done) create an EventListener for contactUpdatedEvent
+      - (done) test EventListener
+      - (NOT STARTED) Make note in sample listener that when consuming events they must be applied
+        in version order. In the comment make reference to where logic is documented
+   
+
+- MOVE check for change events to orchestration layer.
+  - (DONE) move check for update saga 
+  - (DONE) move check for create saga 
+  - (DONE) move check for delete saga
+  - (DONE) add rollback trigger and rollback detection on pivot transaction for create saga
+  - (DONE) add rollback trigger and rollback detection on pivot transaction for update saga
+  - (DONE) add rollback trigger and rollback detection on pivot transaction for delete saga
+
+
+- IMPLMENT STANDARD SAGA RESPONSE OBJECTS
+  - (DONE)     create response for delete saga
+  - (DONE) create response for create saga
+  - (DONE) create response for update saga
+
+- (DONE) IMPLEMENT DELETE AGGREGATE
+  - (DONE) implement hard delete
+  - (NOT STARTED) implement softdelete
+
+- MOVE THE CHECK if DOMAIN ENABLE FROM SAGA METHODS TO ORCHESTRATION METHOD
+  - (DONE) move checks for create contact
+  - (DONE) move checks for update contact
+
+- FINALIZE RESPONSE OBJECTS FOR SERVICES
+  - (DONE) finalize response object for create aggregate
+  - (DONE) finalize response object for update aggregate
+  - (DONE) finalize response object for delete aggregate
+
+- SAGA FAILURES 
+  - (DONE) determine standard way of handling saga failures (response object or throw exception)
+  - (DONE) implement saga error handling
+  
+<<< H E R E >>>
+- CLEAN UP PROJECT
+  - (DONE) rename contact.service.latest to contact service.
+     - make sure comments are clear as to its purpose
+  - (DONE) make sure comments are clear to the role contact.aggregate.service
+  - (DONE) Check in current state of project before doing the following changes
+  - (DONE) Traverse contact folder to delete any references to orders service.
+  - (DONE) rename sample-orders to sample-contact
+  - (DONE) run a few tests make sure create,update,delete still working
+  - create contact-microservice boilerplate project in github
+  - check in contact-microservice project
+
+- MIGRATE SAMPLE GATEWAY REQUESTS TO PIVITEE API-GATEWAY
+  - conduct analysis: determine if pivitee microservices should have their
+    own module / controller in the api-gateway for each microservice.
+  - migrate code (eg. dtos, and )
+
+- IMPLEMENT PAGINATION 
+  - implement findAll() with pagination 
+
+- FINALIZE API VERSIONING STRATEGY
+  - Conduct analysis
+  - finalize decision and implement it when I migrate to api-gateway
+
+- FINALIZE ERROR LOGGING STRATEGY
+  - Conduct analysis. Design a scalable solution that captures errors,
+    sends alerts, and tracks issues until resolved. Look at the microservices
+    design pattern as part of the analysis.
+  - Create Design document.
+  - Do not implement if its going to delay "Tagging as a Service" blog rollout, but
+    definitely document design so I can implement later. If I can dom
+
+- DELETE SAMPLE-ORDERS from GITHUB WHEN COMFORTABLE THAT SAMPLE-ORDERS
+    BOILERPLATE IS WORKING FINE
+
+- (Done) Add an Insert and Update Listener to the AggregateRoot Entity (eg Contact), that
+  automaticly updates version # upon a save (which translates to an updated or insert)
+- (Done) Run and an Update Transaction multiple times to ensure Aggregate Version is being updated 
+  on contact repository as expected.
+- (Done) Add version to the createDomainEvent and make sure that we add the version whenever
+  we publish a domainChange event
+- (Done) Check sample contactCreatedEvent listener to make sure version is flowing downstream
+ - Run following scenarios: 
+    Test creating a contact
+    Test applying update to contactSource when it exist 
+    Test applying update to contactSource when it does not exist 
+- Create Sample Mock service for domain change events 
+   Implement Sample Mock for singleChange
+   Implement Sample Mock for BatchChange
+   Implement Sample Mock for BulkChange
+    

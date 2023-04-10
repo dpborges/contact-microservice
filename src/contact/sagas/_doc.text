@@ -1,0 +1,5 @@
+CREATING A SAGA.
+1) Make copy of saga process and provide name of the steps
+   Comment out all step but the first, to work on that one first.
+2) Make copy of the saga itself (create, update, or delete)
+

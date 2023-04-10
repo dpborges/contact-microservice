@@ -1,0 +1,54 @@
+import {
+  MigrationInterface, 
+  QueryRunner, 
+} from "typeorm";
+// import { InsertStatement } from './seed-data/account-table';
+
+/**
+ * To run change file suffix from -ts to .ts and issue one of the commands below
+ *   Command for Dev : npm run typeorm  migration:run -- -d ./src/datasource.ts
+ *   Command for Test: npm run typeorm:test migration:run -- -d ./src/datasource.ts
+ * Change suffix back to -ts
+ */
+
+const TABLE_NAME  = "contact_outbox";
+const TABLE_OWNER = "postgres";
+
+// USE BELOW CONSTRAINT WHEN ADDING EXTENSION TABLE
+// CONSTRAINT fk_contact_extension_id FOREIGN KEY (contact_extension_id) REFERENCES contact_extension (id)
+
+export class ContactOutbox1676601426206 implements MigrationInterface {
+  /* Create Table */
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    console.log(`TABLE MIGRATION FOR => ${TABLE_NAME} TABLE`);
+
+    await queryRunner.query(`
+      CREATE TABLE  ${TABLE_NAME}
+      (
+        id            SERIAL PRIMARY KEY,
+        account_id    integer  NOT NULL,
+        user_id       character varying(21) NOT NULL DEFAULT 'nouser',
+        subject       character varying,
+        payload       character varying,
+        status        character(2) DEFAULT 'un',
+        create_date timestamp with time zone NOT NULL DEFAULT now(),
+        update_date timestamp with time zone NOT NULL DEFAULT now()
+      )
+      TABLESPACE pg_default;
+      ALTER TABLE ${TABLE_NAME} OWNER to ${TABLE_OWNER};
+      CREATE UNIQUE INDEX "idx_contact_outbox_account_id_status"
+        ON ${TABLE_NAME} USING btree
+        (account_id, status ASC)
+        TABLESPACE pg_default;
+      `)
+      ;
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    console.log(`REVERT MIGRATION FOR '${TABLE_NAME}' TABLE `);
+    // await queryRunner.dropTable(TABLE_NAME);
+    await queryRunner.query(`
+        DROP TABLE ${TABLE_NAME};
+    `);
+  }
+}

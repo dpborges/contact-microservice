@@ -1,0 +1,44 @@
+import {
+  MigrationInterface, 
+  QueryRunner, 
+  Table, 
+  TableIndex, 
+  TableColumn, 
+  TableForeignKey,
+  TableUnique
+// } = require("typeorm");
+} from "typeorm";
+
+const TABLE_NAME = "contact_source";
+const TABLE_OWNER = "postgres";
+
+export class ContactSource1676403976245 implements MigrationInterface  {
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+      console.log(`TABLE MIGRATION FOR => ${TABLE_NAME} TABLE`);
+
+      /* For Dev environment, Create table using the TypeOrm API */
+      await queryRunner.query(`
+      CREATE TABLE IF NOT EXISTS ${TABLE_NAME}
+      (
+        id           SERIAL PRIMARY KEY,
+        account_id   integer   NOT NULL,
+        type         character varying  NOT NULL,
+        name         character varying  NOT NULL,
+        create_date timestamp with time zone NOT NULL DEFAULT now()
+      )
+      TABLESPACE pg_default;
+      ALTER TABLE ${TABLE_NAME} OWNER to ${TABLE_OWNER};
+    `);
+      
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+      console.log(`REVERT MIGRATION FOR '${TABLE_NAME}' TABLE `);
+      // await queryRunner.dropTable(TABLE_NAME);
+      await queryRunner.query(`
+        DROP TABLE ${TABLE_NAME};
+    `);
+    }
+
+}

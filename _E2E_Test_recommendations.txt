@@ -1,0 +1,12 @@
+> Test CreateAggregate Primary Service
+  - Create and Save ticket.
+  - Create and Save duplicate ticket (s/d not create new record; only generate new event)
+> Test CreatedAggregateEvent 
+  - Generating of multiple CreateDomain events does not create multiple records
+> Test that versioning is working on primary service
+  - Increments version on multiple saves
+  - Update fails when version# same as existing
+  - Update fails when version# to far ahead
+  - Manually test that version update to far ahead that is not acknowledged, 
+    will be resubmitted by nats and processed when version in database is updated.
+
