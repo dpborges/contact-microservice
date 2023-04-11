@@ -27,20 +27,20 @@ export class DomainChangeEventFactory {
      */
   genCreatedEventFor(createContactEvent: CreateContactEvent, savedAggregate: ContactAggregate): string {
     const methodName = 'genCreatedEventFor'
-    logTrace && logStart([methodName, 'createContactEvent', 'version'], arguments);
+    logTrace && logStart([methodName, 'createContactEvent', 'savedAggregate'], arguments);
 
     /* destructure properties from the aggregate and the message header */
-    const { id, version, email, firstName, lastName } = savedAggregate.contact;
-    const { accountId } = savedAggregate.contactAcctRel;
-    const { sessionId, userId } = createContactEvent.header;
+    const { id, version, email, firstName, lastName, mobilePhone } = savedAggregate.contact;
+    // const { accountId } = savedAggregate.contactAcctRel;
+    const { sessionId, userId, accountId } = createContactEvent.header;
 
     /* default to version 1 when creating new aggregate */
     // version =  1;
 
     /* use destructured properties to define what to include in contactCreatedEvent  */
     const contactCreatedEvent: ContactCreatedEvent = { 
-      header:  { sessionId, userId },
-      message: { id,  accountId, version, email, firstName, lastName  }
+      header:  { sessionId, userId, accountId },
+      message: { id, version, email, firstName, lastName, mobilePhone }
     }
     /* serialize event  */
     const serializedContactCreatedEvent: string = JSON.stringify(contactCreatedEvent);
@@ -60,8 +60,8 @@ export class DomainChangeEventFactory {
     logTrace && logStart([methodName, 'updateContactEvent', 'version'], arguments);
     
     /* destructure properties for create contact event */
-    const  { sessionId, userId } = updateContactEvent.header;
-    const  { id, accountId, ...updateProperties } = updateContactEvent.message;
+    const  { sessionId, userId, accountId } = updateContactEvent.header;
+    const  { id, ...updateProperties } = updateContactEvent.message;
 
     /* use destructured properties to define what to include in updatedEvent  */
     const contactUpdatedEvent: ContactUpdatedEvent = { 

@@ -62,7 +62,8 @@ export class ContactAggregateService  {
      optional relations are not provided, do not add to aggregateEntities object.  */
   async createAggregate(createContactEvent: CreateContactEvent): Promise<ContactAggregate> {
     /* destructure event to extract aggregate entities */
-    const { accountId, email, firstName, lastName, mobilePhone } = createContactEvent.message;
+    const { accountId } = createContactEvent.header;
+    const { email, firstName, lastName, mobilePhone } = createContactEvent.message;
     const { sourceType, sourceName } = createContactEvent.message;
     
     /* declare aggregate */

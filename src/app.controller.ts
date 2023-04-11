@@ -300,8 +300,8 @@ export class AppController {
     logTrace && logStartVal(methodName, 'contactCreatedEvent', JSON.stringify(contactCreatedEvent));
    
     const { header, message } = contactCreatedEvent;
-    const { outboxId } = header;
-    const { accountId, email, firstName, lastName } = message;
+    const { accountId, outboxId } = header;
+    const { email, firstName, lastName } = message;
     
     /* Update event status to pending via service (request/reply) */
     await this.appService.updateEventStatus(outboxId, OutboxStatus.pending)

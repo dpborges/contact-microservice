@@ -70,7 +70,8 @@ export class ContactService {
     const { header, message } = createContactEvent;
 
     /* Check if contact exists, if so, return 409 conflict(duplicate) error  */
-    const { accountId, email } = message;
+    const { accountId } = header;
+    const { email } = message;
     const contactExists = await this.contactQueryService.checkContactExistsByEmail(accountId, email);
     if (contactExists) {
       return this.duplicateContactError(email);

@@ -77,8 +77,8 @@ export class OutboxService {
     ): ContactOutbox {
     console.log(">>> Inside OutboxService.generateDomainCreatedInstances ")
     // console.log("    contactCreatedEvent ",  createContactEvent);
-    const { userId }    = createContactEvent.header;
-    const { accountId } = createContactEvent.message;
+    const { accountId, userId }    = createContactEvent.header;
+    // const { accountId } = createContactEvent.message;
 
     const contactCreatedEventOutboxInstance:ContactOutbox = this.contactOutboxRepository.create({
       accountId, 

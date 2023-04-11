@@ -90,13 +90,13 @@ export class DomainChangeEventPublisher {
    */
   generateContactCreatedEvent(createContactEvent): string {
     /* destructure properties from createDomainEvent to selectively add to DomainCreatedEvent */
-    const { sessionId, userId } = createContactEvent.header;
-    const { accountId, email, firstName, lastName } = createContactEvent.message;
+    const { accountId, sessionId, userId } = createContactEvent.header;
+    const { email, firstName, lastName, mobilePhone } = createContactEvent.message;
 
     /* use properties from createDomain event to define domainCreatedEvent   */
     const contactCreatedEvent: ContactCreatedEvent = { 
-      header:  {sessionId, userId },
-      message: { accountId, email, firstName, lastName }
+      header:  {sessionId, userId, accountId },
+      message: { email, firstName, lastName, mobilePhone }
     }
     /* serialize event  */
     const serializedContactCreatedEvent: string = JSON.stringify(contactCreatedEvent);

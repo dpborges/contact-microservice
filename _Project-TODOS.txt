@@ -162,13 +162,16 @@ CONCURRENCY AND MESSAGE ORDERING USING AGGREGATE VERSION
   - (DONE) Traverse contact folder to delete any references to orders service.
   - (DONE) rename sample-orders to sample-contact
   - (DONE) run a few tests make sure create,update,delete still working
-  - create contact-microservice boilerplate project in github
-  - check in contact-microservice project
+  - (DONE) create contact-microservice boilerplate project in github
+  - (DONE) check in contact-microservice project
 
 - MIGRATE SAMPLE GATEWAY REQUESTS TO PIVITEE API-GATEWAY
-  - conduct analysis: determine if pivitee microservices should have their
+  - (DONE) conduct analysis: determine if pivitee microservices should have their
     own module / controller in the api-gateway for each microservice.
-  - migrate code (eg. dtos, and )
+  - (DONE) Incorporate Nats JetStream into API Gateway
+  - (DONE) Migrate and refactor gateway code (eg. dtos, and ) for create contact
+  - (NOT STARTED) Migrate and refactor gateway code (eg. dtos, and ) for update contact
+  - (NOT STARTED) Migrate and refactor gateway code (eg. dtos, and ) for delete contact
 
 - IMPLEMENT PAGINATION 
   - implement findAll() with pagination 
@@ -186,7 +189,7 @@ CONCURRENCY AND MESSAGE ORDERING USING AGGREGATE VERSION
     definitely document design so I can implement later. If I can dom
 
 - DELETE SAMPLE-ORDERS from GITHUB WHEN COMFORTABLE THAT SAMPLE-ORDERS
-    BOILERPLATE IS WORKING FINE
+    BOILERPLATE IS WORKING FINE WITH API_GATEWAY
 
 - (Done) Add an Insert and Update Listener to the AggregateRoot Entity (eg Contact), that
   automaticly updates version # upon a save (which translates to an updated or insert)
