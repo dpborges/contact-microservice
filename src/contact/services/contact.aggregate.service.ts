@@ -14,8 +14,8 @@ import { RepoToken } from '../../db-providers/repo.token.enum';
 import { ContactAggregate } from '../types/contact.aggregate'
 import { BusinessRule } from '../business-rules/business-rule.enum';
 // import { TransactionStatus } from './transaction-status.type-DELETE-ts'
-import { CreateContactEvent } from 'src/events/contact/commands';
-import { ContactCreatedEvent } from 'src/events/contact/domainChanges';
+import { CreateContactEvent } from 'src/contact/events/commands';
+import { ContactCreatedEvent } from 'src/contact/events/domainChanges';
 import { contactAcctSourceSql } from '../dbqueries';
 import { contactAcctSql } from '../dbqueries';
 import { getContactByAcctAndId } from '../dbqueries';
@@ -23,6 +23,7 @@ import { CreateContactTransaction } from '../transactions';
 import { genBeforeAndAfterImage } from '../../utils/gen.beforeAfter.image';
 import { DeleteTransactionResult } from '../transactions/types/delete.transaction.result';
 import { DeleteContactTransaction } from '../transactions';
+import { QueryOptions } from '../types';
 import { logStart, logStop } from '../../utils/trace.log';
 
 const logTrace = true;
@@ -188,11 +189,11 @@ export class ContactAggregateService  {
     };
     
     // Define where clause using database syntax (not camelcase)
-    let selectCriteria = `contact.id = ${id}`;
-    let whereClause = 'WHERE ' + selectCriteria;
+    let whereClause = `WHERE contact.id = ${id}`;
+    let queryOptions: QueryOptions = { whereClause }
     
     // select query based on whether optional entity exist or not
-    let sqlStatement = contactAcctSourceSql(whereClause); /* defaults to joining 3 tables */
+    let sqlStatement = contactAcctSourceSql(queryOptions); /* defaults to joining 3 tables */
     const contactSourceExists = await this.contactSourceExists(id)
     if (!contactSourceExists) {
       sqlStatement = contactAcctSql(whereClause);         /* joins contact & acct tbl only */

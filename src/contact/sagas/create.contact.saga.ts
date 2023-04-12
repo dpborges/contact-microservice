@@ -1,7 +1,7 @@
 import { Repository, DataSource } from 'typeorm';
 import { RepoToken } from '../../db-providers/repo.token.enum';
 import { ContactOutbox } from '../../outbox/entities/contact.outbox.entity';
-import { CreateContactEvent } from '../../events/contact/commands';
+import { CreateContactEvent } from '../events/commands';
 import { OutboxService } from '../../outbox/outbox.service';
 import { CreateContactTransaction } from './../transactions';
 import { ContactAggregate } from '../types'
@@ -16,7 +16,7 @@ import {
   isStepsSuccessful, getSagaResult, 
   updateProcessStatus, setRollbackTrigger 
 } from './helpers';
-import { ContactQueryService } from '../dbqueries/services/contact.query.service';
+import { ContactQueryService } from '../services/contact.query.service';
 import { logStart, logStop } from '../../utils/trace.log';
 import { StepResult } from './types/step.result';
 import { CreateContactResponse } from '../responses';

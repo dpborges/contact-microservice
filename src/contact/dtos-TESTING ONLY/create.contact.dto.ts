@@ -2,9 +2,7 @@ import { IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateContactDto {
 
-  @IsNumber()
-  accountId: number;
-
+  
   @IsString()
   email: string;
 

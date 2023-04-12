@@ -8,7 +8,7 @@ import { Contact } from '../entities/contact.entity';
 import { ContactSource } from '../entities/contact.source.entity';
 import { ContactAcctRel } from '../entities/contact.acct.rel.entity';
 import { RepoToken } from '../../db-providers/repo.token.enum';
-import { ContactCreatedEvent } from '../../events/contact/domainChanges';
+import { ContactCreatedEvent } from '../events/domainChanges';
 
 // Class is responsible for saving aggregate entities as a one transaction.
 // If an outbox is include in the within the AggregateEntities object, it will included in transaction.

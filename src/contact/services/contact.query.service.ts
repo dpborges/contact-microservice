@@ -1,10 +1,12 @@
-import { databaseProviders } from './../../../db-providers/database.providers';
+import { databaseProviders } from '../../db-providers/database.providers';
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
-import { getContactCountByAcctAndEmail } from '../getContactCountByAcctAndEmail';
-import { getContactCountByAcctAndId } from '../getContactCountByAcctAndId';
-import { RepoToken } from '../../../db-providers/repo.token.enum'
-import { logStart, logStop, logStartVal } from '../../../utils/trace.log';
+import { getContactCountByAcctAndEmail } from '../dbqueries/getContactCountByAcctAndEmail';
+import { getContactCountByAcctAndId } from '../dbqueries/getContactCountByAcctAndId';
+import { contactAcctSourceSql } from '../dbqueries';
+import { RepoToken } from '../../db-providers/repo.token.enum'
+import { PaginationQuery, QueryOptions } from '../types';
+import { logStart, logStop, logStartVal } from '../../utils/trace.log';
 
 const logTrace = true;
 
@@ -62,6 +64,29 @@ export class ContactQueryService {
     if (count >  0) { contactExists = true };
     logTrace && logStop(methodName, 'contactExists', contactExists);
     return contactExists
+  }
+
+   /**
+   * This function uses a parameterized sql statement to get all contacts. Typical parameters 
+   * when getting All Contacts are the 'where' clause to limit query to just the account records,
+   * and the pagination query (eg.  { LIMIT, OFFSET }), for pagination purposes
+   * @param queryOptions
+   * @returns array
+   */
+   async getAllContacts(queryOptions: QueryOptions): Promise<any> {
+    const methodName = 'checkContactExistsById';
+    logTrace && logStart([methodName, 'accountId', 'id'], arguments)
+
+    // get query that joins the 3 tables
+    let sqlStatement = contactAcctSourceSql(queryOptions); /* defaults to joining 3 tables */
+    logTrace && console.log("SQL STATEMENT ", sqlStatement)
+    // execute query
+    const resultArray = await this.dataSource.query(sqlStatement);
+    const { count } = resultArray[0];
+
+    
+    logTrace && logStop(methodName, 'resultArray', resultArray);
+    return resultArray
   }
 
 

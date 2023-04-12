@@ -10,9 +10,9 @@ import { Injectable, Inject } from '@nestjs/common';
 // import { ContactAggregate } from '../types/contact.aggregate';
 import { ContactAggregateService } from './contact.aggregate.service';
 import { ContactAggregate } from '../types/contact.aggregate';
-import { CreateContactEvent } from '../../events/contact/commands';
+import { CreateContactEvent } from '../events/commands';
 import { CreateEntityResponse } from '../../common/responses/command.response-Delete';
-import { ContactCreatedEvent } from '../../events/contact/domainChanges';
+import { ContactCreatedEvent } from '../events/domainChanges';
 import { CustomNatsClient } from 'src/custom.nats.client.service';
 import { ContactOutbox } from '../../outbox/entities/contact.outbox.entity';
 import { DomainChangeEventFactory } from './domain.change.event.factory';
@@ -20,13 +20,13 @@ import { DomainChangeEventManager } from '../../outbox/domainchange.event.manage
 import { ConfigService }  from '@nestjs/config';
 import { genBeforeAndAfterImage } from '../../utils/gen.beforeAfter.image';
 import { DataChanges } from '../../common/responses/base.response';
-import { UpdateContactEvent, DeleteContactEvent } from '../../events/contact/commands';
+import { UpdateContactEvent, DeleteContactEvent } from '../events/commands';
 import { logStart, logStop } from 'src/utils/trace.log';
 import { BaseError, ClientError } from '../../common/errors';
 import { ServerError, ServerErrorReasons, ClientErrorReasons } from '../../common/errors';
 import { BaseResponse } from '../../common/responses/base.response';
 import { CreateContactSaga, DeleteContactSaga, UpdateContactSaga } from '../sagas';
-import { ContactQueryService } from '../dbqueries/services';
+import { ContactQueryService } from './contact.query.service';
 import { DeleteTransactionResult } from '../transactions/types/delete.transaction.result';
 const logTrace = true;
 
@@ -95,7 +95,9 @@ export class ContactService {
     // logTrace && logStart([methodName, 'updateContactEvent',updateContactEvent ], arguments);
 
     const { header, message } = updateContactEvent; 
-    const { id, accountId, ...updateProperties }  = message; 
+    const accountId = header.accountId;
+    const { id, ...updateProperties }  = message; 
+
 
     /* If contact does not exists, return 404 error */
     const contactExists = await this.contactQueryService.checkContactExistsById(accountId, id);
@@ -120,7 +122,8 @@ export class ContactService {
     logTrace && logStart([methodName, 'deleteContactEvent',deleteContactEvent ], arguments);
 
     const { header, message } = deleteContactEvent; 
-    const { id, accountId, ...updateProperties }  = message; 
+    const { id }  = message; 
+    const { accountId } = header;
 
     /* If contact does not exists, return 404 error */
     const contactExists = await this.contactQueryService.checkContactExistsById(accountId, id);

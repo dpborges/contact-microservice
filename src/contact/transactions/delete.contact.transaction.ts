@@ -8,7 +8,7 @@ import { Contact } from '../entities/contact.entity';
 import { ContactSource } from '../entities/contact.source.entity';
 import { ContactAcctRel } from '../entities/contact.acct.rel.entity';
 import { RepoToken } from '../../db-providers/repo.token.enum';
-import { ContactCreatedEvent } from '../../events/contact/domainChanges';
+import { ContactCreatedEvent } from '../events/domainChanges';
 import { DeleteResult } from 'typeorm';
 import { DeleteTransactionResult } from './types/delete.transaction.result';
 

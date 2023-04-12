@@ -1,5 +1,5 @@
-import { ContactCreatedEvent } from '../../events/contact/domainChanges/contact-created-event';
-import { Subjects } from '../../events/contact/domainChanges';
+import { ContactCreatedEvent } from '../../contact/events/domainChanges/contact-created-event';
+import { Subjects } from '../../contact/events/domainChanges';
 
 export interface SubjectAndPayload {
   subject: string,

@@ -1,4 +1,4 @@
-import { MessageHeader } from '../../common/message.header';
+import { MessageHeader } from '../common/message.header';
 
 export interface UpdateContactPayload {
   id:            number;

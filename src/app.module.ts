@@ -19,7 +19,7 @@ import { ContactService } from './contact/services/contact.service';
 import { CreateContactSaga, DeleteContactSaga } from './contact/sagas';
 import { ContactAggregateService } from './contact/services/contact.aggregate.service';
 import { CreateContactTransaction, DeleteContactTransaction } from './contact/transactions';
-import { ContactQueryService } from './contact/dbqueries/services/contact.query.service';
+import { ContactQueryService } from './contact/services/contact.query.service';
 import { outboxRepositories } from './outbox/repos/outbox.repositories';
 // import { SaveOutboxTransaction } from './outbox/transactions/save.outbox.transaction';
 

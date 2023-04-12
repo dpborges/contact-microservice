@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { NatsJetStreamClient } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { PubAck } from 'nats';
 import { Observable } from 'rxjs';
-import { Subjects } from './events/contact/domainChanges';
+import { Subjects } from './contact/events/domainChanges';
 
 @Injectable()
 export class CustomNatsClient {

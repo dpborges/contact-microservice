@@ -9,8 +9,8 @@ import { PublishUnpublishedEventsCmdPayload } from './outbox/events/commands';
 import { NatsJetStreamContext } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { Controller, Get, UseFilters } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { DeleteContactEvent } from './events/contact/commands';
-import { ContactDeletedEvent } from './events/contact/domainChanges';
+import { DeleteContactEvent } from './contact/events/commands';
+import { ContactDeletedEvent } from './contact/events/domainChanges';
 import { ExecuteCommand, ListenForEvent } from './decorators';
 import {
   Ctx,
@@ -19,7 +19,7 @@ import {
   Payload,
 } from '@nestjs/microservices';
 import { AppService } from './app.service';
-import { Subjects } from './events/contact/domainChanges'; 
+import { Subjects } from './contact/events/domainChanges'; 
 // import { CreateOrderEvent, UpdateOrderEvent, DeleteOrderEvent } from './events/orders';
 // import { OrderCreatedEvent, OrderUpdatedEvent, OrderDeletedEvent } from './events/orders';
 // import { Patterns } from './commands/orders/patterns';
@@ -28,19 +28,19 @@ import { Contact } from './contact/entities/contact.entity';
 // import { CreateContactDto } from './contact/dtos/create.contact.dto';
 // import { DomainMgtService } from './domain-mgt/domain-mgt.service';
 // import { ContactService } from './contact/contact.service';
-import { ContactCommand } from './events/contact/commands';
+import { ContactCommand } from './contact/events/commands';
 import { OutboxCommands } from './outbox/events/commands';
-import { CreateContactEvent } from './events/contact/commands';
+import { CreateContactEvent } from './contact/events/commands';
 // import { ContactQueries } from './events/contact/queries';
 // import { QueryContactByIdPayload } from './events/contact/queries';
-import { ContactCreatedEvent } from './events/contact/domainChanges';
+import { ContactCreatedEvent } from './contact/events/domainChanges';
 import { UpdateEventStatusCmdPayload } from './outbox/events/commands';
 import { DomainChangeEventManager } from './outbox/domainchange.event.manager';
 // import { ContactAggregate } from './contact/aggregate-types/contact.aggregate';
-import { UpdateContactEvent } from './events/contact/commands';
+import { UpdateContactEvent } from './contact/events/commands';
 import { ServerError } from './common/errors/server/server.error';
 import { UpdateContactResponse } from './contact/responses/update.contact.response';
-import { ContactUpdatedEvent } from './events/contact/domainChanges';
+import { ContactUpdatedEvent } from './contact/events/domainChanges';
 import { logStart, logStop, logStartVal } from './utils/trace.log';
 import { ClientErrorReasons, ClientError } from './common/errors';
 import { ContactAggregate } from './contact/types/contact.aggregate';
@@ -360,8 +360,8 @@ export class AppController {
      logTrace && logStartVal(methodName, 'contactCreatedEvent', JSON.stringify(contactDeletedEvent));
     
      const { header, message } = contactDeletedEvent;
-     const { outboxId } = header;
-     const { id, accountId } = message;
+     const { outboxId, accountId } = header;
+     const { id } = message;
      
      /* Update event status to pending via service (request/reply) */
      await this.appService.updateEventStatus(outboxId, OutboxStatus.pending)

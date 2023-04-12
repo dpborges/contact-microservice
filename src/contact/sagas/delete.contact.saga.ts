@@ -2,7 +2,7 @@ import { ContactSource } from './../entities/contact.source.entity';
 import { Repository, DataSource } from 'typeorm';
 import { RepoToken } from '../../db-providers/repo.token.enum';
 import { ContactOutbox } from '../../outbox/entities/contact.outbox.entity';
-import { DeleteContactEvent } from '../../events/contact/commands';
+import { DeleteContactEvent } from '../events/commands';
 import { OutboxService } from '../../outbox/outbox.service';
 import { ContactAggregate } from '../types'
 import { DomainChangeEventFactory } from '../services/domain.change.event.factory';
@@ -15,7 +15,7 @@ import {
   isStepsSuccessful, getSagaResult, 
   updateProcessStatus, setRollbackTrigger 
 } from './helpers';
-import { ContactQueryService } from '../dbqueries/services/contact.query.service';
+import { ContactQueryService } from '../services/contact.query.service';
 import { logStart, logStop } from '../../utils/trace.log';
 import { StepResult } from './types/step.result';
 import { DeleteTransactionResult } from '../transactions/types/delete.transaction.result';
@@ -186,7 +186,8 @@ export class DeleteContactSaga {
 
     /* Business logic: Create Aggregate  */
     const { header, message } = deleteContactEvent;
-    const { id, accountId }  = message; 
+    const { id }  = message; 
+    const { accountId } = header;
     const aggregate: ContactAggregate = await this.contactAggregateService.getAggregateEntitiesBy(accountId, id);
 
     /* Update process success based on result */

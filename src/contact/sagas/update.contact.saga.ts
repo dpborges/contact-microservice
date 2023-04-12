@@ -1,7 +1,7 @@
 import { Repository, DataSource } from 'typeorm';
 import { RepoToken } from '../../db-providers/repo.token.enum';
 import { ContactOutbox } from '../../outbox/entities/contact.outbox.entity';
-import { UpdateContactEvent } from '../../events/contact/commands';
+import { UpdateContactEvent } from '../events/commands';
 import { OutboxService } from '../../outbox/outbox.service';
 import { ContactAggregate } from '../types'
 import { DomainChangeEventFactory } from '../services/domain.change.event.factory';
@@ -14,7 +14,7 @@ import {
   isStepsSuccessful, getSagaResult, 
   updateProcessStatus, setRollbackTrigger 
 } from './helpers';
-import { ContactQueryService } from '../dbqueries/services/contact.query.service';
+import { ContactQueryService } from '../services/contact.query.service';
 import { UpdateContactResponse } from '../responses/update.contact.response'; 
 import { logStart, logStop } from '../../utils/trace.log';
 import { StepResult } from './types/step.result';
@@ -184,7 +184,8 @@ export class UpdateContactSaga {
 
     /* Business logic: Create Aggregate  */
     const { header, message } = updateContactEvent;
-    const { id, accountId, ...updateProperties }  = message; 
+    const { id, ...updateProperties }  = message; 
+    const accountId = header.accountId;
     const aggregate: ContactAggregate = await this.contactAggregateService.getAggregateEntitiesBy(accountId, id);
 
     /* Update process success based on result; by default success is false */
@@ -215,7 +216,7 @@ export class UpdateContactSaga {
 
     /* Construct updateRequest (properties in the update event) */
     const { header, message } = updateContactEvent;
-    const { id, accountId, ...updateProperties }  = message; 
+    const { id, ...updateProperties }  = message; 
     let updateRequest = { ...updateProperties }; /* separates out update properties only*/
 
     /* Business logic:  */
@@ -239,8 +240,8 @@ export class UpdateContactSaga {
 
     /* Construct updateRequest (properties in the update event) */
     const { header, message } = updateContactEvent;
-    const { id, accountId, ...updateProperties }  = message; 
-    let updateRequest = { ...updateProperties }; /* separates out update properties only*/
+    const { id,  ...updateProperties }  = message; 
+    let updateRequest = { accountId: header.accountId, ...updateProperties }; /* separates out update properties only*/
 
     /* Business logic:  */
     let updatedAggregate = this.contactAggregateService.applyUpdates(updateRequest, contactAggregate)

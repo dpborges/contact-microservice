@@ -1,11 +1,11 @@
 import { ContactAggregate } from '../types/contact.aggregate';
-import { UpdateContactEvent } from '../../events/contact/commands';
+import { UpdateContactEvent } from '../events/commands';
 import { Injectable } from '@nestjs/common';
-import { CreateContactEvent, DeleteContactEvent } from 'src/events/contact/commands';
+import { CreateContactEvent, DeleteContactEvent } from 'src/contact/events/commands';
 import { ContactOutbox } from 'src/outbox/entities/contact.outbox.entity';
-import { ContactCreatedEvent, ContactUpdatedEvent, ContactDeletedEvent } from '../../events/contact/domainChanges';
+import { ContactCreatedEvent, ContactUpdatedEvent, ContactDeletedEvent } from '../events/domainChanges';
 import { logStart, logStop } from 'src/utils/trace.log';
-import { Subjects } from 'src/events/contact/domainChanges';
+import { Subjects } from 'src/contact/events/domainChanges';
 
 const logTrace = true;
 
@@ -51,7 +51,7 @@ export class DomainChangeEventFactory {
 
 
   /**
-   * Generate a serialzied updatedDomainEvent payload  from updateDomainEvent
+   * Generate a serialzied updatedDomainEvent payload  from updateDomainEvent.
    * @param createContactEvent 
    * @param version
    */
@@ -65,8 +65,8 @@ export class DomainChangeEventFactory {
 
     /* use destructured properties to define what to include in updatedEvent  */
     const contactUpdatedEvent: ContactUpdatedEvent = { 
-      header:  { sessionId, userId },
-      message: { id, accountId, version, ...updateProperties  }
+      header:  { sessionId, userId, accountId },
+      message: { id, version, ...updateProperties }
     }
     /* serialize event  */
     const serializedContactUpdatedEvent: string = JSON.stringify(contactUpdatedEvent);
@@ -84,13 +84,14 @@ export class DomainChangeEventFactory {
     logTrace && logStart([methodName, 'deleteContactEvent'], arguments);
     
     /* destructure properties for create contact event */
-    const  { sessionId, userId } = deleteContactEvent.header;
-    const  { id, accountId } = deleteContactEvent.message;
+    const { header, message } = deleteContactEvent;
+    const  { sessionId, userId, accountId } = header;
+    const  { id } = message;
 
     /* use destructured properties to define what to include in updatedEvent  */
     const contactDeletedEvent: ContactDeletedEvent = { 
-      header:  { sessionId, userId },
-      message: { id, accountId }
+      header:  { sessionId, userId, accountId },
+      message: { id: id }
     }
     /* serialize event  */
     const serializedContactDeletedEvent: string = JSON.stringify(contactDeletedEvent);

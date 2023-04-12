@@ -1,4 +1,4 @@
-import { MessageHeader } from '../../common/message.header';
+import { MessageHeader } from '../common/message.header';
 
 export interface CreateContactPayload {
   // id:           number;  // keep id as placeholder to set it after creating aggregate 

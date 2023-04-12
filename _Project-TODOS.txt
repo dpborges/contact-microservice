@@ -170,11 +170,15 @@ CONCURRENCY AND MESSAGE ORDERING USING AGGREGATE VERSION
     own module / controller in the api-gateway for each microservice.
   - (DONE) Incorporate Nats JetStream into API Gateway
   - (DONE) Migrate and refactor gateway code (eg. dtos, and ) for create contact
-  - (NOT STARTED) Migrate and refactor gateway code (eg. dtos, and ) for update contact
-  - (NOT STARTED) Migrate and refactor gateway code (eg. dtos, and ) for delete contact
+  - (DONE) Migrate and refactor gateway code (eg. dtos, and ) for update contact
+  - (DONE) Migrate and refactor gateway code (eg. dtos, and ) for delete contact
 
 - IMPLEMENT PAGINATION 
   - implement findAll() with pagination 
+
+- TABLE CHANGES
+  - ADD USERID TO THE OUTBOX TABLE and MAKE ID BIGINT
+
 
 - FINALIZE API VERSIONING STRATEGY
   - Conduct analysis

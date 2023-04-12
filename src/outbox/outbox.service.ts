@@ -1,15 +1,15 @@
 import { UpdateEventStatusCmdPayload } from './events/commands/update.status.payload';
-import { ContactCreatedEvent } from '../events/contact/domainChanges/contact-created-event';
+import { ContactCreatedEvent } from '../contact/events/domainChanges/contact-created-event';
 import { Repository } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
-import { CreateContactEvent, DeleteContactEvent, UpdateContactEvent } from '../events/contact/commands';
+import { CreateContactEvent, DeleteContactEvent, UpdateContactEvent } from '../contact/events/commands';
 import { ServerError } from '../common/errors/server/server.error';
 import { ClientErrorReasons } from '../common/errors/client/client.error.reasons';
 import { PublishUnpublishedEventsCmdPayload } from './events/commands';
 import { RepoToken } from '../db-providers/repo.token.enum';
 import { ContactOutbox } from './entities/contact.outbox.entity';
 import { OutboxStatus } from './outbox.status.enum';
-import { Subjects } from '../events/contact/domainChanges';
+import { Subjects } from '../contact/events/domainChanges';
 import { DomainChangeEventPublisher } from './domainchange.event.publisher';
 import { SubjectAndPayload } from './types/subject.and.payload';
 
@@ -99,8 +99,7 @@ export class OutboxService {
     ): ContactOutbox {
     console.log(">>> Inside OutboxService.generateContactUpdatedInstance ")
     // console.log("    contactCreatedEvent ",  createContactEvent);
-    const { userId }    = updateContactEvent.header;
-    const { accountId } = updateContactEvent.message;
+    const { userId, accountId }   = updateContactEvent.header;
 
     const contactUpdatedEventOutboxInstance:ContactOutbox = this.contactOutboxRepository.create({
       accountId, 
@@ -121,8 +120,7 @@ export class OutboxService {
     ): ContactOutbox {
     console.log(">>> Inside OutboxService.generateContactUpdatedInstance ")
     // console.log("    contactCreatedEvent ",  createContactEvent);
-    const { userId }    = deleteContactEvent.header;
-    const { accountId } = deleteContactEvent.message;
+    const { userId, accountId }    = deleteContactEvent.header;
 
     const contactDeletedEventOutboxInstance:ContactOutbox = this.contactOutboxRepository.create({
       accountId, 

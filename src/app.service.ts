@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Injectable, Inject} from '@nestjs/common';
 import { PubAck } from 'nats';
 import { Observable } from 'rxjs';
-import { Subjects } from './events/contact/domainChanges';
+import { Subjects } from './contact/events/domainChanges';
 import { RpcException } from '@nestjs/microservices';
 import { RepoToken } from './db-providers/repo.token.enum';
 import { Contact } from './contact/entities/contact.entity';

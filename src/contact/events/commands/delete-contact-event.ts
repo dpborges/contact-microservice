@@ -1,8 +1,8 @@
-import { MessageHeader } from '../../common/message.header';
+import { MessageHeader } from '../common/message.header';
 
 export interface DeleteContactPayload {
   id:           number;  
-  accountId:    number;  
+  // accountId:    number;  
 }
 
 export interface DeleteContactEvent {
