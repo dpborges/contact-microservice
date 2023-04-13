@@ -28,6 +28,9 @@ import { BaseResponse } from '../../common/responses/base.response';
 import { CreateContactSaga, DeleteContactSaga, UpdateContactSaga } from '../sagas';
 import { ContactQueryService } from './contact.query.service';
 import { DeleteTransactionResult } from '../transactions/types/delete.transaction.result';
+import { QueryOptions } from '../types';
+import { GetAllContactsResponse } from '../responses';
+import { QueryContactFindAll } from '../events/queries';
 const logTrace = true;
 
 /**
@@ -58,6 +61,30 @@ export class ContactService {
     private contactQueryService: ContactQueryService,
   ) { }
   
+
+  // *****************************************************************
+  // Query Services
+  // *****************************************************************
+  async getAllContacts(queryContactFindAll: QueryContactFindAll):  Promise<any | BaseError> {
+    const methodName = 'getAllContacts';
+    logTrace && logStart([methodName, 'queryContactFindAll', queryContactFindAll ], arguments);
+
+    const { header, message } = queryContactFindAll;
+    const queryOptions: QueryOptions = { paginationValues: message.paginationValues}
+    const contacts = await this.contactQueryService.getAllContacts(queryOptions);
+        
+
+    /* construct response */
+    const getAllContactsResponse: GetAllContactsResponse = new GetAllContactsResponse()
+    getAllContactsResponse.setData(contacts)
+
+    logTrace && logStop(methodName, 'getAllContactsResponse', getAllContactsResponse);
+    return getAllContactsResponse;
+  }
+
+  // *****************************************************************
+  // CUD Services
+  // *****************************************************************
   /**
    * Create aggregate using create.contact.saga which returns value as hypermedia response.
    * @param createContactEvent 
@@ -163,4 +190,11 @@ export class ContactService {
     duplicateError.setLongMessage(`contact id: ${id}`);
     return duplicateError;
   }
+
+  getNextAndPreviousLink(total, limit, offset) {
+    // let nextAndPreviousLinks = { next: }
+    // if ()
+  }
+
+
 }

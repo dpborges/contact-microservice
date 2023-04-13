@@ -175,10 +175,10 @@ CONCURRENCY AND MESSAGE ORDERING USING AGGREGATE VERSION
 
 - IMPLEMENT PAGINATION 
   - implement findAll() with pagination 
+  - see if I can replace other query services with findAll + filters
 
 - TABLE CHANGES
   - ADD USERID TO THE OUTBOX TABLE and MAKE ID BIGINT
-
 
 - FINALIZE API VERSIONING STRATEGY
   - Conduct analysis

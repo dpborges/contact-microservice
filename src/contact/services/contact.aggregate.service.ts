@@ -146,7 +146,7 @@ export class ContactAggregateService  {
     const { contactId } = contactData;  
 
     /* pull out properties for each entity  */
-    const { version, firstName, lastName, email, mobilePhone } = contactData;        /*contact data */
+    const { version, firstName, lastName, email, mobilePhone } = contactData; /* contact data */
     const { sourceId, sourceType, sourceName } = contactData;                 /* source data */
     const { acctRelId } = contactData;                                        /* acctRel data */
     

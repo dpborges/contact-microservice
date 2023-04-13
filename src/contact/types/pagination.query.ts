@@ -2,6 +2,6 @@
  * PaginationQuery type
  */
 export type PaginationQuery = { 
-  LIMIT:  number;
-  OFFSET: number; 
+  limit:  number;
+  offset: number; 
 };

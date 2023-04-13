@@ -38,6 +38,7 @@ class BaseResponse  {
   protected statusCode: number;
   protected id?:      string | number;
   protected _links:   NamedLinks;   /* object with named relations */
+  protected data: any;              /* data result sets */
   protected dataChanges?: DataChanges;
   protected deletedData?: any;
   protected domain: string
@@ -59,6 +60,11 @@ class BaseResponse  {
   setNamedLinks(namedLinks) {
     this._links = namedLinks
   }
+
+  setData(data: any) {
+    this.data = data;
+  }
+
   setDataChanges(dataChanges: DataChanges) {
     this.dataChanges = dataChanges;
   }

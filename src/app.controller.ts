@@ -45,6 +45,9 @@ import { logStart, logStop, logStartVal } from './utils/trace.log';
 import { ClientErrorReasons, ClientError } from './common/errors';
 import { ContactAggregate } from './contact/types/contact.aggregate';
 import { ContactService } from './contact/services/contact.service';
+import { ContactQueries } from './contact/events/queries';
+import { QueryContactFindAll } from './contact/events/queries';
+// import { ContactQueryService } from './contact/services/contact.query.service';
 import * as R from 'ramda';
 
 const logTrace = false;
@@ -56,8 +59,8 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly contactService: ContactService,
+    // private readonly contactQueryService: ContactQueryService,
     // private readonly contactAggregate: ContactAggregate
-    // private readonly contactService: ContactService,
     private readonly outboxService:  OutboxService,
     // private readonly eventStatusUpdater: EventStatusUpdater,
     private readonly domainChangeEventManager: DomainChangeEventManager
@@ -71,63 +74,7 @@ export class AppController {
 
   @Get('test1')
   test1(): any { 
-    // Get Transaction Status
-    // const processKeys = Object.keys(process);
-    // /* extract keys that start with step */
-    // console.log("PROCESS KEYS ", processKeys)
-    // const stepKeys = processKeys.filter((processKey) => processKey.startsWith('step'));
-    // console.log("STEP KEYS ", stepKeys)
 
-    // let transactionStatus = {}
-    // stepKeys.forEach((key) => transactionStatus[key] = {
-    //   name: process[key].name,
-    //   success: process[key].success
-    // })
-    // console.log("transactionstatus ", transactionStatus)
-
-    const steps = ['step1', 'step2', 'step3'];
-
-    const process = {
-      rollbackTriggered: false,
-      sagaSuccessful: true,
-      sagaFailureReason: '',
-      step1: { seq: 0, name: 'saveAggregate',         success: true },
-      step2: { seq: 1, name: 'generateCreatedEvent',  success: true },
-      step3: { seq: 2, name: 'createdOutboxInstance', success: true },
-      step4: { seq: 3, name: 'saveOutbox',            success: false }
-    }
-
-    /* check that all steps in the steps array are defined in the process */
-    let foundAllSteps = true;
-    let stepNotFound = '';
-    const processProperties = Object.keys(process);
-    steps.forEach(step => {
-      const found = processProperties.find(prop => prop === step)
-      if (!found) { 
-        foundAllSteps = false;
-        stepNotFound  = step;
-      }
-    })
-    console.log(`foundAllSteps is ${foundAllSteps} stepNotFound is ${stepNotFound}`)
-
-   
-
-    // let isSuccessful = (stepSuccess) => stepSuccess; /* predicate function */
-    // let successFlagsArray = steps.map(step => process[step].success);
-    // console.log("successFlagsArray ", successFlagsArray)  
-    // let stepsSuccessful = successFlagsArray.every(isSuccessful);
-
-    // console.log("steps successful ", stepsSuccessful)
-
-    // let steps = ['step1', 'step2', 'step3'];
-    // let successFlagsArray = steps.map(step => process[step].success);
-    // let isSuccessful = (stepSuccess) => stepSuccess;
-    // let stepsSuccessful = successFlagsArray.every(isSuccessful);
-    // console.log("All steps listed successful ", stepsSuccessful)
-    // const clientError = new ClientError(404);
-    // clientError.setReason(ClientErrorReasons.KeysNotInDatabase);
-    // clientError.setLongMessage("check id")
-    // return clientError;
      
   } // end of test1
 
@@ -154,6 +101,25 @@ export class AppController {
   //************************************************************** */
   // Contact Query Handlers
   //************************************************************** */
+
+  @ExecuteCommand(ContactQueries.findAllContacts)
+  async findAllContacts(
+    @Payload() payload: QueryContactFindAll,
+    @Ctx() context: NatsJetStreamContext
+  ): Promise<any> {
+    const subject = context.message.subject;
+    console.log(`MS - Received ${ContactQueries.findAllContacts} in Orders Microservice`);
+    console.log('MS - ....with payload', payload);
+    let cmdResult: any = "Query reached microservice";
+    cmdResult  =  await this.contactService.getAllContacts(payload);
+    
+    // Here you create Order and insert CreatedOrderEvent to the event database
+    // as a single transaction. The publish flag will be false false
+
+    // here you return the CreatedOrderEvent.
+    return cmdResult;
+  }
+
   // @ExecuteCommand(ContactQueries.findContactById)
   // async findContactById(
   //   @Payload() data: QueryContactByIdPayload,
