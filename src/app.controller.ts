@@ -111,7 +111,8 @@ export class AppController {
     console.log(`MS - Received ${ContactQueries.findAllContacts} in Orders Microservice`);
     console.log('MS - ....with payload', payload);
     let cmdResult: any = "Query reached microservice";
-    cmdResult  =  await this.contactService.getAllContacts(payload);
+
+    cmdResult  =  await this.contactService.findAllContacts(payload);
     
     // Here you create Order and insert CreatedOrderEvent to the event database
     // as a single transaction. The publish flag will be false false
@@ -494,8 +495,7 @@ export class AppController {
   //   context.message.ack();
   //   console.log('received: ' + context.message.subject, data);
   // }
-
-
+  
 
 
 }

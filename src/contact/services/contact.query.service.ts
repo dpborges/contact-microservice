@@ -1,4 +1,5 @@
 var camelize = require('camelize');
+import { snakeCase } from 'snake-case';
 import { databaseProviders } from '../../db-providers/database.providers';
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
@@ -74,9 +75,18 @@ export class ContactQueryService {
    * @param queryOptions
    * @returns array
    */
-   async getAllContacts(queryOptions?: QueryOptions): Promise<any> {
-    const methodName = 'getAllContacts';
+   async findAllContacts(queryOptions?: QueryOptions): Promise<any> {
+    const methodName = 'findAllContacts';
     logTrace && logStart([methodName, 'queryOptions'], arguments)
+
+
+    // convert the filterBy to a where clause and add it to the queryOptions object
+    if (queryOptions) {
+      if (queryOptions.filterBy) {
+        const whereClause =  this.convertToWhereClause(queryOptions.filterBy);
+        queryOptions.whereClause = whereClause;
+      }
+    }
 
     // get query that joins the 3 tables
     let sqlStatement = contactAcctSourceSql(queryOptions); /* defaults to joining 3 tables */
@@ -106,4 +116,38 @@ export class ContactQueryService {
     return transformedResult;
   }
 
+  /* converts string passed in as queryOptions.filterBy to a string representing where clause */ 
+  convertToWhereClause(filterBy) {
+    console.log("INPUT TO CONVERT TO WHERE CLAUSE ", filterBy)
+    const arrayOfNvPairs = filterBy.split(',');
+    console.log("BEFORE SNAKE CASE CALL ", arrayOfNvPairs)
+    const arrayOfNvPairsInSnakeCase = this.convertNamesToSnakeCase(arrayOfNvPairs);
+    const arrayWithAndConditions = this.insertStringBetweenArrayElements(arrayOfNvPairsInSnakeCase, 'and')
+    const filterByWithAnd = arrayWithAndConditions.join(' ');
+    const whereClause = `WHERE ${filterByWithAnd}`;
+    console.log("CONVERTED TO WHERE CLAUSE ", whereClause)
+    return whereClause;
+  }
+
+  convertNamesToSnakeCase(arrayOfNvPairs) {
+    const convertedNvPairs = arrayOfNvPairs.map((nvPair) => {
+      const nvPairSplit = nvPair.split('=')
+      let [ name, value ] = nvPairSplit;
+      name = snakeCase(name);
+      return name + '=' + value 
+    })
+    console.log("SNAKECASE IS ", convertedNvPairs)
+    return convertedNvPairs;
+  }
+
+  insertStringBetweenArrayElements(inputArray, insertionString): Array<any> {
+    let outPutArray = [];
+    let maxAndInserts = inputArray.length - 1;
+    for (let i = 0; i < inputArray.length; i++) {
+      outPutArray.push(inputArray[i])
+      if (i < maxAndInserts) { outPutArray.push(insertionString)}
+    }
+    console.log("WITH AND CONDITIONS ", outPutArray)
+    return outPutArray;
+  }
 }

@@ -153,7 +153,7 @@ CONCURRENCY AND MESSAGE ORDERING USING AGGREGATE VERSION
   - (DONE) determine standard way of handling saga failures (response object or throw exception)
   - (DONE) implement saga error handling
   
-<<< H E R E >>>
+
 - CLEAN UP PROJECT
   - (DONE) rename contact.service.latest to contact service.
      - make sure comments are clear as to its purpose
@@ -173,9 +173,15 @@ CONCURRENCY AND MESSAGE ORDERING USING AGGREGATE VERSION
   - (DONE) Migrate and refactor gateway code (eg. dtos, and ) for update contact
   - (DONE) Migrate and refactor gateway code (eg. dtos, and ) for delete contact
 
+<<< H E R E >>>
 - IMPLEMENT PAGINATION 
   - implement findAll() with pagination 
   - see if I can replace other query services with findAll + filters
+
+- SQL CHANGES
+  - update contactAcctSourceSql to remove extraneous id fields
+  - remove code where I delete extranious id fields return by contactAcctSourceSql
+    mentioned above
 
 - TABLE CHANGES
   - ADD USERID TO THE OUTBOX TABLE and MAKE ID BIGINT

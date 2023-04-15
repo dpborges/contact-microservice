@@ -29,7 +29,7 @@ import { CreateContactSaga, DeleteContactSaga, UpdateContactSaga } from '../saga
 import { ContactQueryService } from './contact.query.service';
 import { DeleteTransactionResult } from '../transactions/types/delete.transaction.result';
 import { QueryOptions } from '../types';
-import { GetAllContactsResponse } from '../responses';
+import { FindAllContactsResponse } from '../responses';
 import { QueryContactFindAll } from '../events/queries';
 const logTrace = true;
 
@@ -65,21 +65,20 @@ export class ContactService {
   // *****************************************************************
   // Query Services
   // *****************************************************************
-  async getAllContacts(queryContactFindAll: QueryContactFindAll):  Promise<any | BaseError> {
-    const methodName = 'getAllContacts';
+  async findAllContacts(queryContactFindAll: QueryContactFindAll):  Promise<any | BaseError> {
+    const methodName = 'findAllContacts';
     logTrace && logStart([methodName, 'queryContactFindAll', queryContactFindAll ], arguments);
 
     const { header, message } = queryContactFindAll;
-    const queryOptions: QueryOptions = { paginationValues: message.paginationValues}
-    const contacts = await this.contactQueryService.getAllContacts(queryOptions);
+    const queryOptions: QueryOptions = message;
+    const contacts = await this.contactQueryService.findAllContacts(queryOptions);
         
-
     /* construct response */
-    const getAllContactsResponse: GetAllContactsResponse = new GetAllContactsResponse()
-    getAllContactsResponse.setData(contacts)
+    const findAllContactsResponse: FindAllContactsResponse = new FindAllContactsResponse()
+    findAllContactsResponse.setData(contacts)
 
-    logTrace && logStop(methodName, 'getAllContactsResponse', getAllContactsResponse);
-    return getAllContactsResponse;
+    logTrace && logStop(methodName, 'findAllContactsResponse', findAllContactsResponse);
+    return findAllContactsResponse;
   }
 
   // *****************************************************************
@@ -131,6 +130,7 @@ export class ContactService {
     if (!contactExists) {
       return this.notFoundContactError(id)
     }
+   
 
     /* Execute update contact saga */
     const result: any = await this.updateContactSaga.execute(updateContactEvent)
@@ -195,6 +195,8 @@ export class ContactService {
     // let nextAndPreviousLinks = { next: }
     // if ()
   }
+
+  
 
 
 }

@@ -8,23 +8,25 @@ export function contactAcctSourceSql (queryOptions?: QueryOptions) {
   const methodName = 'contactAcctSourceSql';
   logTrace && logStart([methodName, 'queryOptions'], arguments)
 
-  /* initialize individual sqlClauses string   */
+  /* initialize ther sqlClauses string used to concat multiple clauses together  */
   let sqlClauses = '';
 
-  /* build up sqlClauses string if queryOptions are provided  */
+  /* if queryOptions are provided, build up sqlClauses string   */
   if (queryOptions) {
     console.log(" INSIDE QUERY OPTIONS CONDITION")
     let whereClause = queryOptions.whereClause ? queryOptions.whereClause : '';
     let sortOrder   = queryOptions.sortOrder ? queryOptions.sortOrder : 'ASC'; /* default to ASC if sortOrder not provided */
-    let orderBy     = queryOptions.orderByField ? `ORDER BY ${queryOptions.orderByField} ${sortOrder}` : '';
+    let orderBy     = queryOptions.orderByField ? `ORDER BY ${queryOptions.orderByField} ${sortOrder} ` : '';
     let limit  = queryOptions.paginationValues ? queryOptions.paginationValues.limit : '';
     let offset = queryOptions.paginationValues ? queryOptions.paginationValues.offset : '';
     let limitAndOffset = limit ? `LIMIT ${limit} OFFSET ${offset}` : '';
+    
 
     /* provide only sql clauses that were provide in queryOptions */
     if (whereClause) { sqlClauses = sqlClauses + whereClause };
-    if (orderBy) { sqlClauses = sqlClauses + ' ' + orderBy };
+    if (sortOrder) { sqlClauses = sqlClauses + ' ' + orderBy };
     if (limit && offset) { sqlClauses = sqlClauses + ' ' + limitAndOffset };
+    console.log(" THIS IS SQL CLAUSES ", sqlClauses)
     console.log(" THIS IS SQL CLAUSES ", sqlClauses)
   }
 

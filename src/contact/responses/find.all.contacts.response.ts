@@ -4,7 +4,7 @@
 
 import { BaseResponse } from '../../common/responses/base.response';
 
-export class GetAllContactsResponse extends BaseResponse {
+export class FindAllContactsResponse extends BaseResponse {
 
   constructor() {
     super();
