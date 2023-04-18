@@ -93,6 +93,7 @@ export class ContactQueryService {
     logTrace && console.log("SQL STATEMENT ", sqlStatement)
     // execute query
     const resultArray = await this.dataSource.query(sqlStatement);
+    console.log("RESULTANT ARRAY ", resultArray)
 
     // transform raw result to camelcase and removes unwanted properties
     let transformedResult = this.transformItemsToContactAggregate(resultArray)

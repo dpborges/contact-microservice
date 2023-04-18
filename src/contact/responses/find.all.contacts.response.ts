@@ -6,11 +6,9 @@ import { BaseResponse } from '../../common/responses/base.response';
 
 export class FindAllContactsResponse extends BaseResponse {
 
-  constructor() {
+  constructor(hypermediaLinks) {
     super();
-    this.setNamedLinks({  
-      self: `http://localhost:3000/contacts`,
-    });
+    this.setNamedLinks(hypermediaLinks)
   }
   
 }

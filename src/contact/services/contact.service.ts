@@ -74,11 +74,11 @@ export class ContactService {
     const contacts = await this.contactQueryService.findAllContacts(queryOptions);
         
     /* construct response */
-    const findAllContactsResponse: FindAllContactsResponse = new FindAllContactsResponse()
-    findAllContactsResponse.setData(contacts)
+    const findAllResponse  = this.createFindAllContactsResponse(queryContactFindAll, contacts.length)
+    findAllResponse.setData(contacts)
 
-    logTrace && logStop(methodName, 'findAllContactsResponse', findAllContactsResponse);
-    return findAllContactsResponse;
+    logTrace && logStop(methodName, 'findAllResponse', findAllResponse);
+    return findAllResponse;
   }
 
   // *****************************************************************
@@ -170,6 +170,7 @@ export class ContactService {
   // Helper methods
   // *****************************************************************
 
+  // Standardized Error Objects
   createAggregateError(email) {
     let createError = new ServerError(500);
     createError.setMessage(ServerErrorReasons.databaseError);
@@ -191,12 +192,93 @@ export class ContactService {
     return duplicateError;
   }
 
-  getNextAndPreviousLink(total, limit, offset) {
-    // let nextAndPreviousLinks = { next: }
-    // if ()
+  // Pagination Helpers
+  getNextLimit(numRecords, limit, offset): number | null {
+    const methodName = 'getNextLimit'
+    logTrace && logStart([methodName, 'numRecords', 'offset', 'offset'], arguments)
+    let nextOffset = offset + limit;
+    let nextOffsetTestValue = offset + (2 * limit);
+    if (nextOffsetTestValue > numRecords ) { nextOffset = null};
+    logStop(methodName, 'nextOffset', nextOffset)
+    return nextOffset;
+  }
+  getPrevLimit(numRecords, limit, offset): number | null {
+    let prevOffset = offset - limit;
+    let prevOffsetTestValue = offset - (2 * limit);
+    return prevOffsetTestValue >= 1 ? prevOffset : null;
+  }
+  replaceLimitValueInQueryString(queryString, currentValue, nextValue) {
+    let currentOffset = `offset=${currentValue}`
+    let replacementOffset = `offset=${nextValue}`
+    let updatedString = queryString.replace(/offset=\d{1,}/, replacementOffset);
+    return updatedString
+  }
+
+  // Response Helpers
+  createFindAllContactsResponse(queryContactFindAll: QueryContactFindAll, numRecords): any {
+    const { message  } = queryContactFindAll;
+    const { originalQueryParam: originalQueryString } = message;
+    let nextLimitValue = null;
+    let prevLimitValue = null;
+    let nextQueryString = '';
+    let prevQueryString = '';
+    let nextLink = '';
+    let prevLink = ''
+
+    /* if pagination values exist, get next and previous values  */
+    if (message.paginationValues) {
+      let { limit, offset } = message.paginationValues;
+      console.log("Pagination values  ", JSON.stringify(message.paginationValues, null, 2))
+      nextLimitValue = this.getNextLimit(numRecords, limit, offset);
+      prevLimitValue = this.getPrevLimit(numRecords, limit, offset);
+    }
+
+    /* if next value exist (not at end of resultSet), replace offset value in the original query string 
+      and create the next link*/
+    if (nextLimitValue) {
+      let { limit, offset } = message.paginationValues;
+      nextQueryString = this.replaceLimitValueInQueryString(originalQueryString, limit, nextLimitValue)
+      nextLink = `${this.configService.get('DEV_SITE_URL')}${nextQueryString}`
+    }
+    /* if previous value exist (not at beginning of resultSet), replace offset value in original query string 
+      and create the previous link */
+    if (prevLimitValue) {
+      let { limit, offset } = message.paginationValues;
+      prevQueryString = this.replaceLimitValueInQueryString(originalQueryString, limit, prevLimitValue)
+      prevLink = `${this.configService.get('DEV_SITE_URL')}${prevQueryString}`
+    }
+
+    /* construct response's link object  */
+    let hypermediaLinks = {
+      self: `${this.configService.get('DEV_SITE_URL')}${originalQueryString}`
+    }
+    if (nextLink) { hypermediaLinks['next'] = nextLink}
+    if (prevLink) { hypermediaLinks['prev'] = prevLink}
+
+    /* create response object */
+    const findAllContactsResponse: FindAllContactsResponse = new FindAllContactsResponse(hypermediaLinks)
+    console.log("*********************************************")
+    console.log("findAllResponse ", JSON.stringify(findAllContactsResponse,null,2))
+    console.log("nextLink ", nextLink)
+    console.log("prevLink ", prevLink)
+    console.log("nextQueryString ", nextQueryString)
+    console.log("*********************************************")
+    
+    return findAllContactsResponse;
+  }
+
+  /**
+   * Checks to see a queryParams string was provided in the payload by the gateway.
+   * If so, return it here, otherwise return empty string;
+   * @param queryContactFindAll 
+   */
+  getOriginalQueryString(queryContactFindAll: QueryContactFindAll): string {
+    let queryString: string = '';
+    const { originalQueryParam } =  queryContactFindAll.message;
+    if (originalQueryParam) { queryString = originalQueryParam };
+    return queryString;
   }
 
   
-
 
 }

@@ -72,8 +72,15 @@ export class AppController {
     return `Welcome to webshop`;
   }
 
-  @Get('test1')
+  @Get('test')
   test1(): any { 
+
+    let replacement1 = "offset=1"
+    let string1 = "&orderByField=email&sortOrder=ASC&limit=2&offset=5555555";
+    let replaceString1 = string1.replace(/offset=\d{1,}/, replacement1);
+    console.log("before ", string1)
+    console.log("after  ", replaceString1)
+
 
      
   } // end of test1

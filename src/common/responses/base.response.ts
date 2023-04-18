@@ -15,6 +15,7 @@ type DocLink = {
 interface NamedLinks {
   self?: Link,
   next?: Link,
+  prev?: Link,
   find?: Link,
   /* create additional relations here ... */
   curies: Array<DocLink>,

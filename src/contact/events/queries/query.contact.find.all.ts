@@ -6,9 +6,10 @@ export interface QueryContactFindAllPayload {
   filterBy?: string;
   orderByField?: string;
   sortOrder?: string;
+  originalQueryParam?: string;
 }
 
 export interface QueryContactFindAll {
   header?: MessageHeader;
-  message: QueryContactFindAllPayload ;
+  message: QueryContactFindAllPayload;
 }
