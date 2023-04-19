@@ -75,8 +75,8 @@ export class AppController {
   @Get('test')
   test1(): any { 
 
-    let replacement1 = "offset=1"
-    let string1 = "&orderByField=email&sortOrder=ASC&limit=2&offset=5555555";
+    let replacement1 = "offset="
+    let string1 = "&orderByField=email&sortOrder=ASC&limit=0&offset=0";
     let replaceString1 = string1.replace(/offset=\d{1,}/, replacement1);
     console.log("before ", string1)
     console.log("after  ", replaceString1)

@@ -16,7 +16,8 @@ export function contactAcctSourceSql (queryOptions?: QueryOptions) {
   const methodName = 'contactAcctSourceSql';
   logTrace && logStart([methodName, 'queryOptions'], arguments)
 
-  const getCount = true;
+  /* if passed in as queryOption, only count will be returned */
+  const countOnly = queryOptions.countOnly ? queryOptions.countOnly : false;
 
   /* initialize ther sqlClauses string used to concat multiple clauses together  */
   let sqlClauses = '';
@@ -33,18 +34,17 @@ export function contactAcctSourceSql (queryOptions?: QueryOptions) {
 
     /* provide only sql clauses that were provided in the queryOptions */
     if (whereClause) { sqlClauses = sqlClauses + whereClause };
-    if (sortOrder && !getCount) { sqlClauses = sqlClauses + ' ' + orderBy };
-    if (limit && offset && !getCount) { sqlClauses = sqlClauses + ' ' + limitAndOffset };
+    if (sortOrder && !countOnly) { sqlClauses = sqlClauses + ' ' + orderBy };
+    if (limit && offset && !countOnly) { sqlClauses = sqlClauses + ' ' + limitAndOffset };
     console.log(" THIS IS SQL CLAUSES ", sqlClauses)
   }
-
+  
   /* define sql statmement */
   let fieldProjection = `contact.id as id, version,  first_name, last_name, email, mobile_phone, 
-  contact_acct_rel.id as acct_rel_id, contact_acct_rel.account_id as account_id,
-  contact_source.id as source_id, source_type, source_name`;
-
+  contact_acct_rel.account_id as account_id, source_type, source_name`;
   let countProjection = `count(*)`;
-  let projection = getCount ? countProjection : fieldProjection;
+
+  let projection = countOnly ? countProjection : fieldProjection;
 
   let sqlstatment = 
   `SELECT ${projection}
@@ -56,17 +56,3 @@ export function contactAcctSourceSql (queryOptions?: QueryOptions) {
   logTrace && logStop(methodName, 'sqlStatment', sqlstatment)
   return sqlstatment;
 }
-
-
-/* define sql statmement */
-// let sqlstatment = 
-// `SELECT contact.id as contact_id, version,  first_name, last_name, mobile_phone, 
-//     contact_acct_rel.id as acct_rel_id, contact_acct_rel.account_id as account_id,
-//     contact_source.id as source_id, source_type, source_name
-//  FROM contact 
-//  INNER JOIN contact_acct_rel on contact.id = contact_acct_rel.contact_id
-//  INNER JOIN contact_source   on contact.id = contact_source.contact_id 
-//  ${whereClause}
-//  ${orderBy} 
-//  ${limitAndOffset};
-// `

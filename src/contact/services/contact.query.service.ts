@@ -71,7 +71,7 @@ export class ContactQueryService {
    /**
    * This function returns all contacts in the account by default. You can use Query options to 
    * provide a where clause, an order by, and/or set pagination values (LIMIT, OFFSET) shown
-   * in the REST API as LIMIT, START.
+   * in the REST API as LIMIT, OFFSET.
    * @param queryOptions
    * @returns array
    */
@@ -109,9 +109,7 @@ export class ContactQueryService {
   transformItemsToContactAggregate(inputArray) {
     let transformedResult = inputArray.map((record) => {
       const camelizedResult =  camelize(record) /* converts to camel case */
-      /* delete unwanted props from output */       
-      delete camelizedResult.acctRelId;         
-      delete camelizedResult.sourceId;
+      /* >>  delete unwanted props from output here if needed <<*/       
       return camelizedResult;
     })
     return transformedResult;

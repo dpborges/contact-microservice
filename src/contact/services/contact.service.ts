@@ -71,10 +71,14 @@ export class ContactService {
 
     const { header, message } = queryContactFindAll;
     const queryOptions: QueryOptions = message;
+    
+    /* get count */
+    const contactsCount = await this.getCount(queryOptions)
+    /* get data */
     const contacts = await this.contactQueryService.findAllContacts(queryOptions);
         
     /* construct response */
-    const findAllResponse  = this.createFindAllContactsResponse(queryContactFindAll, contacts.length)
+    const findAllResponse  = this.createFindAllContactsResponse(queryContactFindAll, contactsCount)
     findAllResponse.setData(contacts)
 
     logTrace && logStop(methodName, 'findAllResponse', findAllResponse);
@@ -164,7 +168,6 @@ export class ContactService {
     logTrace && logStop(methodName, 'result', result);
     return result;
   }
-  
 
   // *****************************************************************
   // Helper methods
@@ -195,23 +198,46 @@ export class ContactService {
   // Pagination Helpers
   getNextLimit(numRecords, limit, offset): number | null {
     const methodName = 'getNextLimit'
-    logTrace && logStart([methodName, 'numRecords', 'offset', 'offset'], arguments)
-    let nextOffset = offset + limit;
-    let nextOffsetTestValue = offset + (2 * limit);
+    logTrace && logStart([methodName, 'numRecords', 'limit', 'offset'], arguments)
+    limit  = parseInt(limit,10);
+    offset = parseInt(offset,10);
+    let nextOffset =  offset + parseInt(limit,10);
+    let nextOffsetTestValue = offset + (limit + 1);
     if (nextOffsetTestValue > numRecords ) { nextOffset = null};
     logStop(methodName, 'nextOffset', nextOffset)
     return nextOffset;
   }
   getPrevLimit(numRecords, limit, offset): number | null {
-    let prevOffset = offset - limit;
-    let prevOffsetTestValue = offset - (2 * limit);
-    return prevOffsetTestValue >= 1 ? prevOffset : null;
+    const methodName = 'getPrevLimit'
+    logTrace && logStart([methodName, 'numRecords', 'limit', 'offset'], arguments)
+    limit  = parseInt(limit,10);
+    offset = parseInt(offset,10);
+    let prevOffset: number = offset - limit;                          //  0
+    // let prevOffsetTestValue = offset - (limit + 1);           // -1
+    let inRange = false;
+    if (prevOffset >= 0 && prevOffset < 7 ) { inRange = true; };      // 
+    logStop(methodName, 'prevOffset', prevOffset)
+    return inRange ? prevOffset : null;
   }
   replaceLimitValueInQueryString(queryString, currentValue, nextValue) {
     let currentOffset = `offset=${currentValue}`
     let replacementOffset = `offset=${nextValue}`
     let updatedString = queryString.replace(/offset=\d{1,}/, replacementOffset);
     return updatedString
+  }
+
+  // FindAllContacts Helpers
+  /**
+   * Modifies queryOptions to return a count instead of a data array 
+   * @param queryOptions 
+   * @returns count
+   */
+  async getCount(queryOptions: QueryOptions): Promise<number> {
+    const queryOptionsCountOnly = { ...queryOptions, countOnly: true }
+    const dataArray =  await this.contactQueryService.findAllContacts(queryOptionsCountOnly);
+    const [ dataObject ] = dataArray;
+    const count = parseInt(dataObject.count, 10)
+    return count; 
   }
 
   // Response Helpers
@@ -225,9 +251,11 @@ export class ContactService {
     let nextLink = '';
     let prevLink = ''
 
+    let { limit, offset } = message.paginationValues;
+
     /* if pagination values exist, get next and previous values  */
     if (message.paginationValues) {
-      let { limit, offset } = message.paginationValues;
+      // let { limit, offset } = message.paginationValues;
       console.log("Pagination values  ", JSON.stringify(message.paginationValues, null, 2))
       nextLimitValue = this.getNextLimit(numRecords, limit, offset);
       prevLimitValue = this.getPrevLimit(numRecords, limit, offset);
@@ -236,34 +264,32 @@ export class ContactService {
     /* if next value exist (not at end of resultSet), replace offset value in the original query string 
       and create the next link*/
     if (nextLimitValue) {
-      let { limit, offset } = message.paginationValues;
+      // let { limit, offset } = message.paginationValues;
       nextQueryString = this.replaceLimitValueInQueryString(originalQueryString, limit, nextLimitValue)
       nextLink = `${this.configService.get('DEV_SITE_URL')}${nextQueryString}`
     }
     /* if previous value exist (not at beginning of resultSet), replace offset value in original query string 
       and create the previous link */
-    if (prevLimitValue) {
-      let { limit, offset } = message.paginationValues;
+    if (prevLimitValue !== null) {
+      // let { limit, offset } = message.paginationValues;
       prevQueryString = this.replaceLimitValueInQueryString(originalQueryString, limit, prevLimitValue)
       prevLink = `${this.configService.get('DEV_SITE_URL')}${prevQueryString}`
     }
+
+    /* if offset is GT numRecords, set flag to not show next and prev links */
+    const showPrevNextLinks  = offset > numRecords ? false : true;
 
     /* construct response's link object  */
     let hypermediaLinks = {
       self: `${this.configService.get('DEV_SITE_URL')}${originalQueryString}`
     }
-    if (nextLink) { hypermediaLinks['next'] = nextLink}
-    if (prevLink) { hypermediaLinks['prev'] = prevLink}
-
+    if (showPrevNextLinks) {
+      if (nextLink) { hypermediaLinks['next'] = nextLink}
+      if (prevLink) { hypermediaLinks['prev'] = prevLink}
+    }
     /* create response object */
     const findAllContactsResponse: FindAllContactsResponse = new FindAllContactsResponse(hypermediaLinks)
-    console.log("*********************************************")
-    console.log("findAllResponse ", JSON.stringify(findAllContactsResponse,null,2))
-    console.log("nextLink ", nextLink)
-    console.log("prevLink ", prevLink)
-    console.log("nextQueryString ", nextQueryString)
-    console.log("*********************************************")
-    
+
     return findAllContactsResponse;
   }
 
@@ -278,7 +304,6 @@ export class ContactService {
     if (originalQueryParam) { queryString = originalQueryParam };
     return queryString;
   }
-
-  
+ 
 
 }

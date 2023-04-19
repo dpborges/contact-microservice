@@ -11,7 +11,14 @@ import {
 
 const TABLE_NAME = "contact_source";
 const TABLE_OWNER = "postgres";
-
+/**
+ * To run migration, do following: 
+ *   Change file suffix from -ts to .ts and issue one of the commands below
+ *    Command for Dev : npm run typeorm  migration:run -- -d ./src/datasource.ts
+ *    Command for Test: npm run typeorm:test migration:run -- -d ./src/datasource.ts
+ *   If you get a message, "No migrations are pending", delete the row from migrations table
+ *   Change file suffix back to -ts
+ */
 export class ContactSource1676749304383 implements MigrationInterface  {
 
     public async up(queryRunner: QueryRunner): Promise<void> {

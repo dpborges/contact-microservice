@@ -173,18 +173,19 @@ CONCURRENCY AND MESSAGE ORDERING USING AGGREGATE VERSION
   - (DONE) Migrate and refactor gateway code (eg. dtos, and ) for update contact
   - (DONE) Migrate and refactor gateway code (eg. dtos, and ) for delete contact
 
-<<< H E R E >>>
-- IMPLEMENT PAGINATION 
-  - implement findAll() with pagination 
-  - see if I can replace other query services with findAll + filters
 
+- IMPLEMENT PAGINATION 
+  - (DONE) implement findAll() with pagination 
+  - (NOT STARTED) see if I can replace other query services with findAll + filters
+
+<<< H E R E >>>
 - SQL CHANGES
-  - update contactAcctSourceSql to remove extraneous id fields
-  - remove code where I delete extranious id fields return by contactAcctSourceSql
+  - (DONE) update contactAcctSourceSql to remove extraneous id fields
+  - (DONE) remove code where I delete extranious id fields return by contactAcctSourceSql
     mentioned above
 
 - TABLE CHANGES
-  - ADD USERID TO THE OUTBOX TABLE and MAKE ID BIGINT
+  - (DONE) ADD USERID TO THE OUTBOX TABLE and MAKE ID BIGINT
 
 - FINALIZE API VERSIONING STRATEGY
   - Conduct analysis
@@ -198,7 +199,7 @@ CONCURRENCY AND MESSAGE ORDERING USING AGGREGATE VERSION
   - Do not implement if its going to delay "Tagging as a Service" blog rollout, but
     definitely document design so I can implement later. If I can dom
 
-- DELETE SAMPLE-ORDERS from GITHUB WHEN COMFORTABLE THAT SAMPLE-ORDERS
+- DELETE SAMPLE-ORDERS from GITHUB WHEN COMFORTABLE THAT CONTACTS-MICROSERVICE
     BOILERPLATE IS WORKING FINE WITH API_GATEWAY
 
 - (Done) Add an Insert and Update Listener to the AggregateRoot Entity (eg Contact), that
